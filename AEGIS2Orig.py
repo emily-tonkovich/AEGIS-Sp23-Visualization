@@ -4,7 +4,6 @@
 import networkx
 
 # Internal Imports
-import time
 from constants import *
 from classes import *
 from deletionAlg import deletionAlg
@@ -21,14 +20,8 @@ from bokeh.models import NodesAndLinkedEdges, CheckboxGroup, CustomJS, Autocompl
 from importData_HH import importData_HH
 from bokeh.layouts import row, column
 
-timeAnchor = time.perf_counter()
-
 # External Imports
-nodeData, branchData= importData_HH('R2_1247_3_t11_mod_branch_data_2.txt', 'R2_1247_3_t11_mod_node_data_2.txt')
-times = []
-names = []
-times.append(time.perf_counter())
-names.append('Import Data from .txt File')
+nodeData, branchData= importData_HH('R2_1247_3_t11_mod_branch_data_1.txt', 'R2_1247_3_t11_mod_node_data_1.txt')
 
 # Main Function
 def main():
@@ -105,9 +98,6 @@ def main():
     networkx.set_edge_attributes(g, bColor, 'branch_color')
     edge_cmap= 'branch_color'
 
-    times.append(time.perf_counter())
-    names.append('Node Connections and Data Attrs Defined')
-
     #Creates figure object with some desired widgets
     plot = figure(
                   tools="pan,wheel_zoom,save,reset", active_scroll='wheel_zoom',
@@ -115,8 +105,6 @@ def main():
 
     #Imports graph from networkx
     network_graph = from_networkx(g, nx.kamada_kawai_layout, scale=30, center=(0, 0))
-    times.append(time.perf_counter())
-    names.append('import graph from networkx')
 
     # Add Labels
     '''x, y = zip(*network_graph.layout_provider.graph_layout.values())
@@ -160,8 +148,6 @@ def main():
 
     #Checkboxes
     def checkCallback(attr, old, new):
-        times.append(time.perf_counter())
-        names.append('User Input Ref')
         altNodes, altBranches = selectPhase(new, nodeData, branchData) #Finds comps containing selected phases
         if len(new) < len(old): #True if a box has been deselected
             gNodes = []
@@ -175,9 +161,6 @@ def main():
                 if branch not in altBranches and branch not in gPhaseBranches: #Finds branches not included
                     branchData[branch].value[0] = False #marks on branch
                     gPhaseBranches.append(branch)
-            times.append(time.perf_counter())
-            names.append('finds checkbox things to grey')
-            print(str(times[len(times) - 1] - times[len(times) - 2]) + ': ' + names[len(times) - 1])
             gOut(gNodes, gPhaseBranches) #greys other components
 
         else:
@@ -187,14 +170,9 @@ def main():
             
             for i in altBranches:
                 branchData[i].value[0] = True
-            times.append(time.perf_counter())
-            names.append('finds checkbox things to restore')
-            print(str(times[len(times) - 1] - times[len(times) - 2]) + ': ' + names[len(times) - 1])
             restore(altNodes, altBranches)
 
     def checkVCallback(attr, old, new):   
-        times.append(time.perf_counter())
-        names.append('User Input Ref')
         if len(old) > len(new): #true if value has been deselected
             for i in old:
                 if i not in new:  #Finds deselected voltage
@@ -204,9 +182,6 @@ def main():
                     for i in greyN:
                         nodeData[i].value[1] = False
                         #node_value_dict[i][1] = False
-                    times.append(time.perf_counter())
-                    names.append('finds checkbox nodes to grey')
-                    print(str(times[len(times) - 1] - times[len(times) - 2]) + ': ' + names[len(times) - 1])
                     gOut(greyN, [])
 
         else:
@@ -218,9 +193,6 @@ def main():
                     for i in colorN:
                         nodeData[i].value[1] = True
                         #node_value_dict[i][1] = True
-                    times.append(time.perf_counter())
-                    names.append('finds checkbox nodes to restore')
-                    print(str(times[len(times) - 1] - times[len(times) - 2]) + ': ' + names[len(times) - 1])
                     restore(colorN, []) 
 
     #Phase Checkbox Widget
@@ -244,8 +216,6 @@ def main():
     checkbox_v.on_change('active', checkVCallback)
     
     def bCallback(attr, old, new): #activated when node is entered
-        times.append(time.perf_counter())
-        names.append('User Input Ref')
         if new != '': #makes sure this is not the value resetting
             if bColor[branchData[new].fromNode, branchData[new].toNode] == 'lightgrey':
                 textVal = div.text[21:] #Reads text of inactive nodes, not including the inactive components: part
@@ -263,9 +233,6 @@ def main():
                     textVal = ''
 
                 nBranch, nNode = deletionAlg(nodeData, branchData, branchData[new].toNode)
-                times.append(time.perf_counter())
-                names.append('Finds Downstream Components')
-                print(str(times[len(times) - 1] - times[len(times) - 2]) + ': ' + names[len(times) - 1])
                 nBranch.append(new)
 
                 #Nodes components that theya re no longer greyed for something higher on the system becoming inactive
@@ -283,9 +250,6 @@ def main():
                     textVal= div.text
 
                 gBranch, gNode= deletionAlg(nodeData, branchData, branchData[new].toNode) #returns branches and nodes to be greyed out
-                times.append(time.perf_counter())
-                names.append('Finds Following Components')
-                print(str(times[len(times) - 1] - times[len(times) - 2]) + ': ' + names[len(times) - 1])
                 gBranch.append(new)
 
                 #Shows where node was greyed in dictionary
@@ -307,8 +271,6 @@ def main():
 
     def callback(attr, old, new): #activated when node is entered
         if new != '': #Makes sure this is not the text box emptying
-            times.append(time.perf_counter())
-            names.append('User Input Ref')
             if node_color_dict[new] == 'lightgrey':
                 textVal = div.text[21:] #Reads text of inactive nodes, not including the inactive components: part
                 textVal = textVal.split(', ') #splits to get a list of inactive parts
@@ -327,9 +289,6 @@ def main():
                 #Finds components feeding off of entered component
 
                 nBranch, nNode = deletionAlg(nodeData, branchData, new)
-                times.append(time.perf_counter())
-                names.append('time of deletion algs')
-                print(str(times[len(times) - 1] - times[len(times) - 2]) + ': ' + names[len(times) - 1])
                 #Marks that components are not inactive due to upstream deactivation
                 for n in nNode:
                     nodeData[n].value[2] = True
@@ -349,9 +308,6 @@ def main():
                     textVal = textVal + ', ' + new
                 
                 gBranch, gNode= deletionAlg(nodeData, branchData, new) #returns branches and nodes to be greyed out
-                times.append(time.perf_counter())
-                names.append('time of deletion/rest algs')
-                print(str(times[len(times) - 1] - times[len(times) - 2]) + ': ' + names[len(times) - 1])
 
                 #Marks in node and branch objects that they are inactive int this form
                 for n in gNode:
@@ -374,9 +330,6 @@ def main():
         #Assigns light grey to inactive branches
         for branch in gBranch:
             bColor[branchData[branch].fromNode, branchData[branch].toNode] = 'lightgrey'
-        times.append(time.perf_counter())
-        names.append('chng dict')
-        print(str(times[len(times) - 1] - times[len(times) - 2]) + ': ' + names[len(times) - 1])
         update()
 
     def restore(nodes, edges):
@@ -399,9 +352,6 @@ def main():
         for branch in edges:
             if branchData[branch].value[0] and branchData[branch].value[1]:
                 bColor[branchData[branch].fromNode, branchData[branch].toNode] = 'black'
-        times.append(time.perf_counter())
-        names.append('chng dict r')
-        print(str(times[len(times) - 1] - times[len(times) - 2]) + ': ' + names[len(times) - 1])
         update()    
         
     def update():        
@@ -410,9 +360,6 @@ def main():
         network_graph.edge_renderer.data_source.data['branch_color']=(list(bColor.values()))
     
         plot.update(renderers = [network_graph])
-        times.append(time.perf_counter())
-        names.append('updates renderers')
-        print(str(times[len(times) - 1] - times[len(times) - 2]) + ': ' + names[len(times) - 1])
 
            
     text_input = AutocompleteInput(title="Enter Node to be Put In or Out of Service:", completions= [n for n in nodeData.keys()], value="") #Autocomplete text box
@@ -427,12 +374,4 @@ def main():
 
     curdoc().add_root(r) #adds plot to server
 
-    times.append(time.perf_counter())
-    names.append('Data Plotted and Added to Server W/ Widgets')
-    times[0] = times[0] - timeAnchor
-    for i in range(len(times) - 1):
-        times[i + 1] = times[i + 1] - times[i] - timeAnchor
-    for i in range(len(times)):
-        print(str(times[i]) + ': ' + names[i])
-    times[i] = times[i] + timeAnchor
 main()

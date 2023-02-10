@@ -1,0 +1,6 @@
+\\ Branch Data
+\\Index, Label, Type, Phases, From, To, Length (ft)
+56, tl_440, TRIL, BS, 51, 57, 30
+57, tl_455, TRIL, AS, 52, 58, 30
+58, xfmr_454, XFRMR, AS, 53, 59, N/A
+59, tl_454, TRIL, AS, 59, 60, 30
