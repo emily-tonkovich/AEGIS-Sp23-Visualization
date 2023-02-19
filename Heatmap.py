@@ -19,7 +19,7 @@ df = pd.DataFrame(d)
 color = LinearColorMapper(palette = 'Turbo256', low = df.Col0.min(), high = df.Col0.max())
  
 # Figure with specified axes 
-colorbar = figure(plot_width = 750, plot_height = 600, x_axis_label = 'Col1', y_axis_label = 'Col2')
+colorbar = figure(plot_width = 750, plot_height = 600, x_axis_label = 'Column 1', y_axis_label = 'Column 2')
  
 # Plotting the points with defined size and opacity
 colorbar.circle(x = 'Col1', y = 'Col2', source = df, color = transform('Col0', color), size = 15, alpha = 0.5)
