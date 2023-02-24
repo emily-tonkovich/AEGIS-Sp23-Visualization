@@ -21,3 +21,16 @@ z =   [[2, 4, 7, 12, 13, 14, 15, 16],
 )
 
 fig.show() 
+
+import matplotlib.pyplot as plt 
+import numpy as np 
+
+x = np.linspace(0, 10, 50)
+y = np.linspace(0, 10, 40)
+x,y = np.meshgrid(x,y)
+z = (np.sin(x+y)*3 + np.cos(y+5))
+
+plt.contourf(x, y, z, cmap = 'Reds')
+plt.colorbar()
+
+plt.show()
